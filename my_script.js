@@ -20,11 +20,14 @@ function actualizarContador() {
     setInterval(actualizarContador, 1000);
 
 
-const canvas = document.getElementById("nieve");
-const ctx = canvas.getContext("2d");
 
-let width, height;
-let copos = [];
+
+     const canvas = document.getElementById("nieve");
+    const ctx = canvas.getContext("2d");
+
+    let width, height;
+    let copos = [];
+
 
 function inicializar() {
     width = window.innerWidth;
@@ -33,29 +36,19 @@ function inicializar() {
     canvas.height = height;
     copos = [];
 
-    // Ajuste inteligente según tamaño de pantalla
-    let cantidadCopos = width > 768 ? 180 : 80; // menos copos en celular
+    let cantidadCopos = width > 768 ? 150 : 80;
 
     for (let i = 0; i < cantidadCopos; i++) {
-        let simbolo = (Math.random() < 0.8) ? "❄" : "\u2665";
-        
-        // Tamaño adaptativo
-        let tamaño;
-        if (width > 768) {
-            tamaño = (simbolo === "\u2665") ? (Math.random() * 8 + 8) : (Math.random() * 20 + 20);
-        } else {
-            tamaño = (simbolo === "\u2665") ? (Math.random() * 6 + 6) : (Math.random() * 14 + 10);
-        }
-
-        // Movimiento lateral reducido en móvil
-        let velocidadX = width > 768 ? (Math.random() * 0.5 - 0.25) : 0;
+        let tipo = (Math.random() < 0.8) ? "copo" : "corazon";
+        let tamaño = tipo === "corazon" ? (Math.random() * 4 + 8) : (Math.random() * 18 + 12);
+        let velocidadX = width > 768 ? (Math.random() * 0.3 - 0.15) : 0;
 
         copos.push({
             x: Math.random() * width,
             y: Math.random() * height,
             velocidadY: Math.random() * 1 + 0.5,
             velocidadX: velocidadX,
-            simbolo: simbolo,
+            tipo: tipo,
             tamaño: tamaño,
             opacidad: Math.random() * 0.5 + 0.5
         });
@@ -63,45 +56,88 @@ function inicializar() {
 }
 
 
-function dibujarNieve() {
-ctx.clearRect(0, 0, width, height);
-ctx.textBaseline = "middle";
-for (let i = 0; i < copos.length; i++) {
-    let c = copos[i];
-    ctx.font = `${c.tamaño}px Arial Unicode MS, Pacifico, sans-serif`;
-    ctx.fillStyle = `rgba(255,255,255,${c.opacidad})`;
-    ctx.fillText(c.simbolo, c.x, c.y + c.tamaño * 0.2);
-    c.y += c.velocidadY;
-    c.x += c.velocidadX;
+function dibujarCorazon(x, y, size) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.beginPath();
+    ctx.moveTo(0, -size * 0.25);
+    ctx.bezierCurveTo(size * 0.5, -size * 0.5, size * 0.6, size * 0.3, 0, size * 0.7);
+    ctx.bezierCurveTo(-size * 0.6, size * 0.3, -size * 0.5, -size * 0.5, 0, -size * 0.25);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+}
 
-    if (c.y > height || c.x < 0 || c.x > width) {
-        c.y = 0;
-        c.x = Math.random() * width;
-        // nuevamente 80% nieve, 20% corazón
-        c.simbolo = (Math.random() < 0.8) ? "❄" : "\u2665";
-        c.tamaño = (c.simbolo === "\u2665") ? (Math.random() * 8 + 8) : (Math.random() * 20 + 20);
-        c.opacidad = Math.random() * 0.5 + 0.5;
-        c.velocidadX = Math.random() * 0.5 - 0.25;
+function dibujarCopo(x, y, size) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.lineWidth = 1.2;
+    ctx.strokeStyle = "white";
+
+    for (let i = 0; i < 6; i++) {
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, size);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(0, size * 0.4);
+        ctx.lineTo(size * 0.15, size * 0.55);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(0, size * 0.4);
+        ctx.lineTo(-size * 0.15, size * 0.55);
+        ctx.stroke();
+
+        ctx.rotate(Math.PI / 3);
     }
-}
-}
-
-function animar() {
-dibujarNieve();
-requestAnimationFrame(animar);
+    ctx.restore();
 }
 
-window.addEventListener("resize", inicializar);
-inicializar();
-animar();
+
+
+    function dibujarNieve() {
+        ctx.clearRect(0, 0, width, height);
+        for (let i = 0; i < copos.length; i++) {
+            let c = copos[i];
+            ctx.globalAlpha = c.opacidad;
+            ctx.fillStyle = ctx.strokeStyle = "white";
+
+            if (c.tipo === "corazon") {
+                dibujarCorazon(c.x, c.y, c.tamaño);
+            } else {
+                dibujarCopo(c.x, c.y, c.tamaño/2);
+            }
+
+            c.y += c.velocidadY;
+            c.x += c.velocidadX;
+
+            if (c.y > height || c.x < 0 || c.x > width) {
+                c.y = 0;
+                c.x = Math.random() * width;
+                c.tipo = (Math.random() < 0.8) ? "copo" : "corazon";
+                c.tamaño = c.tipo === "corazon" ? (Math.random() * 8 + 8) : (Math.random() * 20 + 20);
+                c.opacidad = Math.random() * 0.5 + 0.5;
+                c.velocidadX = width > 768 ? (Math.random() * 0.3 - 0.15) : 0;
+            }
+        }
+    }
+
+    function animar() {
+        dibujarNieve();
+        requestAnimationFrame(animar);
+    }
+
+    window.addEventListener("resize", inicializar);
+    inicializar();
+    animar();
 
 
 
-
- function aplicarModoDiaNoche() {
+     function aplicarModoDiaNoche() {
         const ahora = new Date();
-        const horaLocal = ahora.getHours(); // Hora local de navegador
-
+        const horaLocal = ahora.getHours();
         if (horaLocal >= 18 || horaLocal < 5) {
             document.body.classList.remove("day");
             document.body.classList.add("night");
@@ -110,5 +146,4 @@ animar();
             document.body.classList.add("day");
         }
     }
-
     aplicarModoDiaNoche();
