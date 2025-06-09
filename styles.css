@@ -1,0 +1,38 @@
+body {
+    background: linear-gradient(135deg, #ffcccc, #ffe6e6);
+    margin: 0;
+    padding: 20px;
+    font-family: 'Pacifico', cursive;
+    position: relative;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.contador {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 40px 20px;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    text-align: center;
+    width: 100%;
+    max-width: 600px;
+    z-index: 1;
+}
+.tiempo {
+    font-size: 3rem;
+    font-weight: bold;
+}
+@media (max-width: 768px) {
+    .tiempo { font-size: 2rem; }
+}
+@media (max-width: 480px) {
+    .tiempo { font-size: 1.5rem; }
+}
+canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+}
