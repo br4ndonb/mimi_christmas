@@ -48,7 +48,7 @@ function inicializar() {
         }
 
         // Movimiento lateral reducido en móvil
-        let velocidadX = width > 768 ? (Math.random() * 0.5 - 0.25) : (Math.random() * 0.2 - 0.1);
+        let velocidadX = width > 768 ? (Math.random() * 0.5 - 0.25) : 0;
 
         copos.push({
             x: Math.random() * width,
