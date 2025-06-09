@@ -19,60 +19,81 @@ function actualizarContador() {
     actualizarContador();
     setInterval(actualizarContador, 1000);
 
- const canvas = document.getElementById("nieve");
-    const ctx = canvas.getContext("2d");
 
-    let width, height;
-    let copos = [];
-    const simbolos = ["❄", "\u2665"]; // ❄ y ♥ como texto puro (blanco garantizado)
+const canvas = document.getElementById("nieve");
+const ctx = canvas.getContext("2d");
 
-    function inicializar() {
-        width = window.innerWidth;
-        height = window.innerHeight;
-        canvas.width = width;
-        canvas.height = height;
-        copos = [];
-        for (let i = 0; i < 180; i++) {
-            let simbolo = simbolos[Math.floor(Math.random() * simbolos.length)];
-            let tamaño = (simbolo === "\u2665") ? (Math.random() * 8 + 8) : (Math.random() * 20 + 20);
-            copos.push({
-                x: Math.random() * width,
-                y: Math.random() * height,
-                velocidadY: Math.random() * 1 + 0.5,
-                velocidadX: Math.random() * 0.5 - 0.25, // movimiento lateral suave
-                simbolo: simbolo,
-                tamaño: tamaño,
-                opacidad: Math.random() * 0.5 + 0.5
-            });
+let width, height;
+let copos = [];
+
+function inicializar() {
+width = window.innerWidth;
+height = window.innerHeight;
+canvas.width = width;
+canvas.height = height;
+copos = [];
+for (let i = 0; i < 180; i++) {
+    // 80% copos, 20% corazones
+    let simbolo = (Math.random() < 0.8) ? "❄" : "\u2665";
+    let tamaño = (simbolo === "\u2665") ? (Math.random() * 8 + 8) : (Math.random() * 20 + 20);
+    copos.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        velocidadY: Math.random() * 1 + 0.5,
+        velocidadX: Math.random() * 0.5 - 0.25,
+        simbolo: simbolo,
+        tamaño: tamaño,
+        opacidad: Math.random() * 0.5 + 0.5
+    });
+}
+}
+
+function dibujarNieve() {
+ctx.clearRect(0, 0, width, height);
+ctx.textBaseline = "middle";
+for (let i = 0; i < copos.length; i++) {
+    let c = copos[i];
+    ctx.font = `${c.tamaño}px Arial Unicode MS, Pacifico, sans-serif`;
+    ctx.fillStyle = `rgba(255,255,255,${c.opacidad})`;
+    ctx.fillText(c.simbolo, c.x, c.y + c.tamaño * 0.2);
+    c.y += c.velocidadY;
+    c.x += c.velocidadX;
+
+    if (c.y > height || c.x < 0 || c.x > width) {
+        c.y = 0;
+        c.x = Math.random() * width;
+        // nuevamente 80% nieve, 20% corazón
+        c.simbolo = (Math.random() < 0.8) ? "❄" : "\u2665";
+        c.tamaño = (c.simbolo === "\u2665") ? (Math.random() * 8 + 8) : (Math.random() * 20 + 20);
+        c.opacidad = Math.random() * 0.5 + 0.5;
+        c.velocidadX = Math.random() * 0.5 - 0.25;
+    }
+}
+}
+
+function animar() {
+dibujarNieve();
+requestAnimationFrame(animar);
+}
+
+window.addEventListener("resize", inicializar);
+inicializar();
+animar();
+
+
+
+
+ function aplicarModoDiaNoche() {
+        const ahora = new Date();
+        const horaLocal = ahora.getHours(); // Hora local de navegador
+
+        if (horaLocal >= 18 || horaLocal < 5) {
+            document.body.classList.remove("day");
+            document.body.classList.add("night");
+        } else {
+            document.body.classList.remove("night");
+            document.body.classList.add("day");
         }
     }
 
-    function dibujarNieve() {
-        ctx.clearRect(0, 0, width, height);
-        for (let i = 0; i < copos.length; i++) {
-            let c = copos[i];
-            ctx.font = `${c.tamaño}px Arial Unicode MS, Pacifico, sans-serif`;
-            ctx.fillStyle = `rgba(255,255,255,${c.opacidad})`;
-            ctx.fillText(c.simbolo, c.x, c.y);
-            c.y += c.velocidadY;
-            c.x += c.velocidadX;
-
-            if (c.y > height || c.x < 0 || c.x > width) {
-                c.y = 0;
-                c.x = Math.random() * width;
-                c.simbolo = simbolos[Math.floor(Math.random() * simbolos.length)];
-                c.tamaño = (c.simbolo === "\u2665") ? (Math.random() * 8 + 8) : (Math.random() * 20 + 20);
-                c.opacidad = Math.random() * 0.5 + 0.5;
-                c.velocidadX = Math.random() * 0.5 - 0.25;
-            }
-        }
-    }
-
-    function animar() {
-        dibujarNieve();
-        requestAnimationFrame(animar);
-    }
-
-    window.addEventListener("resize", inicializar);
-    inicializar();
-    animar();
+    aplicarModoDiaNoche();

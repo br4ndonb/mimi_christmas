@@ -1,5 +1,4 @@
-  body {
-            background: linear-gradient(135deg, #ffcccc, #ffe6e6);
+body {
             margin: 0;
             padding: 20px;
             font-family: 'Pacifico', cursive;
@@ -9,6 +8,17 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: background 1s;
+        }
+
+        h1 {
+             line-height: 1.5;
+        }
+        body.day {
+            background: linear-gradient(135deg, #ffcccc, #ffe6e6);
+        }
+        body.night {
+            background: linear-gradient(135deg, #001f3f, #003366);
         }
         .contador {
             background-color: rgba(255, 255, 255, 0.9);
