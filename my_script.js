@@ -27,26 +27,41 @@ let width, height;
 let copos = [];
 
 function inicializar() {
-width = window.innerWidth;
-height = window.innerHeight;
-canvas.width = width;
-canvas.height = height;
-copos = [];
-for (let i = 0; i < 180; i++) {
-    // 80% copos, 20% corazones
-    let simbolo = (Math.random() < 0.8) ? "❄" : "\u2665";
-    let tamaño = (simbolo === "\u2665") ? (Math.random() * 8 + 8) : (Math.random() * 20 + 20);
-    copos.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        velocidadY: Math.random() * 1 + 0.5,
-        velocidadX: Math.random() * 0.5 - 0.25,
-        simbolo: simbolo,
-        tamaño: tamaño,
-        opacidad: Math.random() * 0.5 + 0.5
-    });
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+    copos = [];
+
+    // Ajuste inteligente según tamaño de pantalla
+    let cantidadCopos = width > 768 ? 180 : 80; // menos copos en celular
+
+    for (let i = 0; i < cantidadCopos; i++) {
+        let simbolo = (Math.random() < 0.8) ? "❄" : "\u2665";
+        
+        // Tamaño adaptativo
+        let tamaño;
+        if (width > 768) {
+            tamaño = (simbolo === "\u2665") ? (Math.random() * 8 + 8) : (Math.random() * 20 + 20);
+        } else {
+            tamaño = (simbolo === "\u2665") ? (Math.random() * 6 + 6) : (Math.random() * 14 + 10);
+        }
+
+        // Movimiento lateral reducido en móvil
+        let velocidadX = width > 768 ? (Math.random() * 0.5 - 0.25) : (Math.random() * 0.2 - 0.1);
+
+        copos.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            velocidadY: Math.random() * 1 + 0.5,
+            velocidadX: velocidadX,
+            simbolo: simbolo,
+            tamaño: tamaño,
+            opacidad: Math.random() * 0.5 + 0.5
+        });
+    }
 }
-}
+
 
 function dibujarNieve() {
 ctx.clearRect(0, 0, width, height);
