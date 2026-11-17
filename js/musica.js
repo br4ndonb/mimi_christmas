@@ -1,5 +1,6 @@
 /* Música de la bola. Solo suena cuando se presiona el botón.
- *  - Si hay canciones en CANCIONES, se tocan una tras otra (empezando por una al azar).
+ *  - Si hay canciones en CANCIONES, cada vez que se enciende empieza una al azar
+ *    y luego siguen una tras otra.
  *  - Si la lista está vacía o ningún archivo carga, suena la caja musical generada
  *    con Web Audio: "Noche de paz" (melodía de dominio público) en bucle.
  */
@@ -149,6 +150,12 @@
                     tocarPista();
                 }
             });
+        }
+        // cada vez que se enciende, una canción al azar (distinta a la anterior si hay varias)
+        if (CANCIONES.length > 1) {
+            let nueva;
+            do { nueva = Math.floor(Math.random() * CANCIONES.length); } while (nueva === pistaActual);
+            pistaActual = nueva;
         }
         sonandoCancion = true;
         tocarPista();

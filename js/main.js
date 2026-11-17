@@ -1,18 +1,12 @@
-/* Une todas las piezas: día/noche, estrellas, pista, mensaje secreto y modo Navidad. */
+/* Une todas las piezas: día/noche, estrellas, pista, estrellas fugaces y modo Navidad. */
 (function () {
     'use strict';
 
     const Bola = window.Bola;
 
-    /* ✏️ Cambia aquí el mensaje secreto (aparece cada 5 agitadas) */
-    const MENSAJE_SECRETO = 'Cada copo de esta bola es un momento que quiero vivir contigo. ¡Te quiero mucho, Mimi! ❤';
-    const AGITADAS_PARA_MENSAJE = 5;
-
     const saludo = document.getElementById('saludo');
     const titulo = document.getElementById('titulo');
     const pista = document.getElementById('pista');
-    const mensaje = document.getElementById('mensaje');
-    const textoMensaje = document.getElementById('mensaje-texto');
 
     /* ---------- Día / noche ---------- */
     function aplicarDiaNoche() {
@@ -53,27 +47,6 @@
         setTimeout(() => pista.classList.add('oculta'), 2500);
     }
 
-    /* ---------- Mensaje secreto ---------- */
-    let mensajeAbierto = false;
-    let agitadasUsuario = 0;
-
-    function mostrarMensaje() {
-        if (mensajeAbierto) return;
-        mensajeAbierto = true;
-        textoMensaje.textContent = MENSAJE_SECRETO;
-        setTimeout(() => {
-            mensaje.hidden = false;
-            document.getElementById('mensaje-cerrar').focus();
-        }, 1200);
-    }
-    function cerrarMensaje() {
-        mensaje.hidden = true;
-        mensajeAbierto = false;
-    }
-    document.getElementById('mensaje-cerrar').addEventListener('click', cerrarMensaje);
-    mensaje.addEventListener('click', e => { if (e.target === mensaje) cerrarMensaje(); });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape' && mensajeAbierto) cerrarMensaje(); });
-
     /* ---------- Estrellas fugaces ---------- */
     let ultimaFugaz = 0;
     function lanzarFugaz() {
@@ -95,10 +68,8 @@
             setTimeout(lanzarFugaz, 300 + Math.random() * 500);
             ultimaFugaz = Date.now();
         }
-        if (agitadaAutomatica) return; // las automáticas no cuentan
+        if (agitadaAutomatica) return; // las automáticas no ocultan la pista
         ocultarPista();
-        agitadasUsuario++;
-        if (agitadasUsuario % AGITADAS_PARA_MENSAJE === 0) mostrarMensaje();
     };
 
     function agitarSola(fuerza) {

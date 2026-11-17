@@ -89,7 +89,7 @@
     let px = 0, py = 0, pt = 0, ultimoArrastre = 0;
 
     document.addEventListener('pointerdown', e => {
-        if (e.target.closest('button, .mensaje')) return;
+        if (e.target.closest('button')) return;
         arrastrando = true;
         seMovio = false;
         px = e.clientX;
