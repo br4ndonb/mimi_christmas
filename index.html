@@ -2,30 +2,69 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Cuenta Regresiva Navidad</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Google Font Pacifico -->
-    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Navidad con Mimi</title>
+    <meta name="description" content="Una bola de cristal con la cuenta regresiva para Navidad">
+    <meta name="theme-color" content="#14204a">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
-<body class="day">
+<body class="dia">
 
-<canvas id="nieve"></canvas>
+<!-- Cielo de fondo (día / noche) -->
+<div class="cielo" aria-hidden="true">
+    <div class="estrellas" id="estrellas"></div>
+</div>
 
-<div class="contador">
-    <h2 class="mb-3">Hola Mimi</h2>
-    <h1 class="mb-4 fs-3">La cuenta regresiva para Navidad 🎄</h1>
-    <div class="row g-3">
-        <div class="col-6 col-md-3"><div class="tiempo" id="dias">00</div><div>Días</div></div>
-        <div class="col-6 col-md-3"><div class="tiempo" id="horas">00</div><div>Horas</div></div>
-        <div class="col-6 col-md-3"><div class="tiempo" id="minutos">00</div><div>Minutos</div></div>
-        <div class="col-6 col-md-3"><div class="tiempo" id="segundos">00</div><div>Segundos</div></div>
+<!-- Interior de la bola: escena + nieve -->
+<div class="mundo" id="mundo" aria-hidden="true">
+    <canvas id="lienzo"></canvas>
+</div>
+
+<!-- Vidrio de la bola: curvatura y reflejos -->
+<div class="cristal" aria-hidden="true">
+    <div class="esfera"></div>
+    <div class="reflejo reflejo-borde"></div>
+    <div class="reflejo reflejo-brillo"></div>
+    <div class="reflejo reflejo-linea"></div>
+</div>
+
+<main class="contenido">
+    <p class="saludo" id="saludo">Hola Mimi</p>
+    <h1 class="titulo" id="titulo">La cuenta regresiva para Navidad 🎄</h1>
+
+    <div class="contador" id="contador" role="timer" aria-live="off">
+        <div class="unidad"><span class="numero" id="dias">00</span><span class="etiqueta">Días</span></div>
+        <div class="unidad"><span class="numero" id="horas">00</span><span class="etiqueta">Horas</span></div>
+        <div class="unidad"><span class="numero" id="minutos">00</span><span class="etiqueta">Minutos</span></div>
+        <div class="unidad"><span class="numero" id="segundos">00</span><span class="etiqueta">Segundos</span></div>
+    </div>
+
+    <p class="pista" id="pista">Agita la bola para mover la nieve ❄</p>
+    <button class="boton boton-permiso" id="permiso" hidden>✨ Toca aquí para agitar la bola con tu celular</button>
+</main>
+
+<!-- Base de madera de la bola -->
+<footer class="base">
+    <button class="boton" id="btn-agitar" aria-label="Agitar la bola">❄<span class="texto"> Agitar</span></button>
+    <div class="placa"><span>Mimi</span></div>
+    <button class="boton" id="btn-musica" aria-pressed="false" aria-label="Música">♪<span class="texto"> Música</span></button>
+</footer>
+
+<!-- Mensaje secreto -->
+<div class="mensaje" id="mensaje" hidden>
+    <div class="mensaje-tarjeta" role="dialog" aria-modal="true" aria-labelledby="mensaje-texto">
+        <p class="mensaje-texto" id="mensaje-texto"></p>
+        <button class="boton" id="mensaje-cerrar">Cerrar ❤</button>
     </div>
 </div>
 
-<script src="my_script.js"></script>
-
+<script src="js/nieve.js"></script>
+<script src="js/agitar.js"></script>
+<script src="js/musica.js"></script>
+<script src="js/contador.js"></script>
+<script src="js/main.js"></script>
 </body>
 </html>

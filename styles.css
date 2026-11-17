@@ -1,48 +1,364 @@
-body {
-            margin: 0;
-            padding: 20px;
-            font-family: 'Pacifico', cursive;
-            position: relative;
-            overflow: hidden;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 1s;
-        }
+:root {
+    --base-alto: clamp(64px, 10vh, 96px);
+    --texto: #ffffff;
+    --sombra-texto: 0 2px 14px rgba(40, 20, 70, 0.4);
+    --vidrio: rgba(255, 255, 255, 0.14);
+    --vidrio-borde: rgba(255, 255, 255, 0.38);
+    --oro: #f4c96b;
+}
 
-        h1 {
-             line-height: 1.5;
-        }
-        body.day {
-            background: linear-gradient(135deg, #ffcccc, #ffe6e6);
-        }
-        body.night {
-            background: linear-gradient(135deg, #001f3f, #003366);
-        }
-        .contador {
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 40px 20px;
-            border-radius: 20px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.2);
-            text-align: center;
-            width: 100%;
-            max-width: 600px;
-            z-index: 1;
-        }
-        .tiempo {
-            font-size: 3rem;
-            font-weight: bold;
-        }
-        @media (max-width: 768px) {
-            .tiempo { font-size: 2rem; }
-        }
-        @media (max-width: 480px) {
-            .tiempo { font-size: 1.5rem; }
-        }
-        canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 0;
-        }
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    overflow: hidden;
+    font-family: 'Outfit', system-ui, sans-serif;
+    color: var(--texto);
+    background: #14204a;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------- Cielo ---------- */
+.cielo {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+}
+.cielo::before,
+.cielo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transition: opacity 2s ease;
+}
+.cielo::before { /* día: atardecer rosado */
+    background: linear-gradient(180deg, #d98fb0 0%, #e7a6bd 35%, #c0a3db 70%, #9cb0e2 100%);
+}
+.cielo::after { /* noche */
+    background: linear-gradient(180deg, #070d24 0%, #14204a 45%, #2b3570 80%, #3e4384 100%);
+    opacity: 0;
+}
+body.noche .cielo::after { opacity: 1; }
+
+.estrellas {
+    position: absolute;
+    inset: 0 0 35% 0;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 2s ease;
+}
+body.noche .estrellas { opacity: 1; }
+.estrella {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+    animation: titilar 3s ease-in-out infinite alternate;
+}
+@keyframes titilar {
+    from { opacity: 0.2; }
+    to { opacity: 1; }
+}
+
+/* ---------- Interior (canvas) ---------- */
+.mundo {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+}
+.mundo canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+.mundo.agitando {
+    animation: sacudir 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+@keyframes sacudir {
+    10%, 90% { transform: translate3d(-2px, 1px, 0) rotate(-0.3deg); }
+    20%, 80% { transform: translate3d(4px, -2px, 0) rotate(0.5deg); }
+    30%, 50%, 70% { transform: translate3d(-7px, 2px, 0) rotate(-0.8deg); }
+    40%, 60% { transform: translate3d(7px, -1px, 0) rotate(0.8deg); }
+}
+
+/* ---------- Vidrio de la bola ---------- */
+.cristal {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    overflow: hidden;
+}
+.esfera,
+.reflejo-borde {
+    position: absolute;
+    left: 50%;
+    top: 46%;
+    width: calc(max(100vw, 100vh) * 1.1);
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+}
+.esfera {
+    background: radial-gradient(circle closest-side,
+        transparent 70%,
+        rgba(10, 14, 40, 0.18) 84%,
+        rgba(6, 8, 26, 0.7) 97%,
+        rgba(4, 6, 18, 0.92) 100%);
+    box-shadow: 0 0 0 100vmax rgba(4, 6, 18, 0.92);
+}
+.reflejo-borde {
+    width: calc(max(100vw, 100vh) * 1.04);
+    box-shadow:
+        inset 22px 28px 50px -26px rgba(255, 255, 255, 0.5),
+        inset -10px -14px 40px -24px rgba(200, 220, 255, 0.25);
+}
+.reflejo-brillo {
+    position: absolute;
+    top: 9%;
+    left: 14%;
+    width: 22vmin;
+    height: 9vmin;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.4), transparent 70%);
+    transform: rotate(-28deg);
+    filter: blur(2px);
+}
+.reflejo-linea {
+    position: absolute;
+    top: 14%;
+    right: 7%;
+    width: 30vmin;
+    height: 62vmin;
+    border-radius: 50%;
+    border-right: 3px solid rgba(255, 255, 255, 0.18);
+    filter: blur(1.5px);
+}
+
+/* ---------- Contenido ---------- */
+.contenido {
+    position: fixed;
+    z-index: 3;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: calc(var(--base-alto) + 18vh);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px 16px;
+    pointer-events: none;
+    text-shadow: var(--sombra-texto);
+}
+
+.saludo {
+    font-family: 'Dancing Script', cursive;
+    font-weight: 700;
+    font-size: clamp(2.8rem, 9vw, 5rem);
+    line-height: 1.05;
+    margin: 0;
+    animation: entrar 1.2s ease both;
+}
+.titulo {
+    font-weight: 300;
+    font-size: clamp(1rem, 3.4vw, 1.5rem);
+    letter-spacing: 0.04em;
+    margin: 0.5em 0 1.4em;
+    animation: entrar 1.2s 0.15s ease both;
+}
+
+.contador {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: clamp(8px, 2vw, 18px);
+    width: min(560px, 100%);
+    animation: entrar 1.2s 0.3s ease both;
+}
+.unidad {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: clamp(12px, 2.6vw, 22px) 4px;
+    border-radius: 20px;
+    background: var(--vidrio);
+    border: 1px solid var(--vidrio-borde);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+    backdrop-filter: blur(10px) saturate(140%);
+    box-shadow: 0 8px 32px rgba(20, 10, 50, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    overflow: hidden;
+}
+.numero {
+    display: block;
+    font-size: clamp(1.9rem, 7.5vw, 3.6rem);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+}
+.numero.cambia {
+    animation: caer 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes caer {
+    from { transform: translateY(-40%); opacity: 0; filter: blur(3px); }
+    to { transform: none; opacity: 1; filter: none; }
+}
+.etiqueta {
+    margin-top: 0.3em;
+    font-size: clamp(0.62rem, 2vw, 0.85rem);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    opacity: 0.85;
+}
+
+.pista {
+    margin: 1.8em 0 0;
+    font-size: 0.92rem;
+    opacity: 0.85;
+    transition: opacity 1.2s ease;
+}
+.pista.oculta { opacity: 0; }
+
+@keyframes entrar {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: none; }
+}
+
+/* ---------- Botones ---------- */
+.boton {
+    pointer-events: auto;
+    font: inherit;
+    font-size: 0.95rem;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 220, 170, 0.4);
+    border-radius: 999px;
+    padding: 0.55em 1.1em;
+    cursor: pointer;
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    text-shadow: none;
+    transition: transform 0.15s ease, background 0.2s ease;
+}
+.boton:hover { background: rgba(255, 255, 255, 0.24); }
+.boton:active { transform: scale(0.94); }
+.boton:focus-visible { outline: 2px solid var(--oro); outline-offset: 2px; }
+.boton[aria-pressed="true"] { background: rgba(244, 201, 107, 0.4); }
+
+.boton-permiso {
+    margin-top: 1.2em;
+    background: rgba(255, 255, 255, 0.2);
+    animation: latir 2s ease-in-out infinite;
+}
+@keyframes latir {
+    50% { transform: scale(1.05); }
+}
+
+/* ---------- Base de madera ---------- */
+.base {
+    position: fixed;
+    z-index: 4;
+    left: -2%;
+    right: -2%;
+    bottom: 0;
+    height: var(--base-alto);
+    padding: 10px calc(2% + 16px) env(safe-area-inset-bottom);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    border-radius: 50% 50% 0 0 / 28px 28px 0 0;
+    background:
+        repeating-linear-gradient(92deg, rgba(0, 0, 0, 0.06) 0 2px, transparent 2px 9px),
+        linear-gradient(180deg, #7a4a2c 0%, #5a321c 40%, #3a1f10 100%);
+    box-shadow:
+        0 -3px 0 #c9a061,
+        0 -10px 26px rgba(0, 0, 0, 0.35),
+        inset 0 8px 12px rgba(255, 220, 170, 0.18);
+}
+.placa {
+    padding: 2px 22px 4px;
+    border-radius: 10px;
+    background: linear-gradient(180deg, #f7dc96, #c99a45);
+    box-shadow:
+        inset 0 1px 0 #fff3c9,
+        inset 0 -2px 4px rgba(90, 50, 10, 0.4),
+        0 3px 8px rgba(0, 0, 0, 0.45);
+}
+.placa span {
+    font-family: 'Dancing Script', cursive;
+    font-weight: 700;
+    font-size: clamp(1.3rem, 4vw, 1.9rem);
+    color: #6b4413;
+    text-shadow: 0 1px 0 rgba(255, 240, 200, 0.7), 0 -1px 0 rgba(60, 30, 0, 0.4);
+}
+
+/* ---------- Mensaje secreto ---------- */
+.mensaje {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    background: rgba(10, 8, 30, 0.35);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+    animation: aparecer 0.8s ease both;
+}
+.mensaje-tarjeta {
+    width: min(440px, 100%);
+    padding: 30px 26px 24px;
+    border-radius: 26px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid var(--vidrio-borde);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+    backdrop-filter: blur(14px) saturate(150%);
+    box-shadow: 0 20px 60px rgba(20, 10, 50, 0.35);
+    animation: entrar 0.9s 0.1s ease both;
+}
+.mensaje-texto {
+    margin: 0 0 1.1em;
+    font-family: 'Dancing Script', cursive;
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    line-height: 1.35;
+    text-shadow: var(--sombra-texto);
+}
+@keyframes aparecer {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ---------- Día de Navidad ---------- */
+body.es-navidad .contador { display: none; }
+body.es-navidad .saludo {
+    color: #ffe7a8;
+    text-shadow: 0 0 24px rgba(255, 200, 90, 0.7), var(--sombra-texto);
+}
+body.es-navidad .titulo { font-size: clamp(1.2rem, 4vw, 1.8rem); }
+
+/* ---------- Pantallas pequeñas ---------- */
+@media (max-width: 480px) {
+    .boton .texto { display: none; }
+    .base .boton { padding: 0.5em 0.85em; font-size: 1.15rem; }
+    .unidad { border-radius: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
